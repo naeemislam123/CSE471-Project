@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h4>Django Clothing</h4>
+        <div>
+            <label for="name"><b>Name:</b></label>
+            <span>{{ user_name }}</span>
+        </div>
+        <div>
+            <label for="trn_id"><b>Transaction ID</b></label>
+            <span>{{ trn_id }}</span>
+        </div>
+        <div>
+            <label for="purchased">Products:</label>
+        </div>
+    </div>
+
+    <div class="container text-center">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Size</th>
+                    <th>Unit Price</th>
+                    <th>Sub Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for items in cart_items %}
+                <tr>
+                    <td>{{ items.0 }}</td>
+                    <td>{{ items.4|title }}</td>
+                    <td>{{ items.1 }}</td>
+                    <td>{{ items.2 }}</td>
+                    <td>{{ items.5 }}</td>
+                    <td>{{ items.3 }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="5" style="text-align: right;"><b>Total:</b></td>
+                    <td colspan="1">{{ total }}</td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align: right;"><b>Promo Code</b></td>
+                    <td colspan="1">{% if promo_code != 'None' %}{{promo_code}}{% else %}None{% endif %}</td>
+                </tr>
+                {% if promo_code != 'None' %}
+                
+                  <tr>
+                    <td colspan="5" style="text-align: right;"><b>Promo Discount</b></td>
+                    <td colspan="1">{{promo_discount}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="5" style="text-align: right;"><b>Discount Price</b></td>
+                    <td colspan="1">{{promo_price}}</td>
+                  </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

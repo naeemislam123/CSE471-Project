@@ -1,0 +1,70 @@
+SQL setup
+
+https://www.youtube.com/watch?v=5umK8mwmpWM
+
+pip install mysqlclient
+pip install xhtml2pdf
+
+sudo mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+
+create user django@localhost identified by 'django';
+
+create database django_clothing;
+grant all privileges on django_clothing.* to django@localhost;
+
+sudo systemctl start mariadb.service
+sudo mariadb -u root -p
+
+sudo mariadb -u django -p django_clothing
+
+// initialize migration
+python manage.py makemigrations webapp
+
+//users
+
+INSERT INTO webapp_user (user_id, username, email, phone, password, address, user_img) VALUES
+('user_0001', 'User1', 'user1@example.com', '1234567890', '123', 'Address1', NULL),
+('user_0002', 'User2', 'user2@example.com', '1234567891', '123', 'Address2', NULL),
+('user_0003', 'User3', 'user3@example.com', '1234567892', '123', 'Address3', NULL);
+
+//sellers
+
+INSERT INTO webapp_user (user_id, username, email, phone, password, address, user_img) VALUES
+('slr_0001', 'Seller1', 'seller1@django.seller.com', '1234567893', '123', 'Address4', NULL),
+('slr_0002', 'Seller2', 'seller2@django.seller.com', '1234567894', '123', 'Address5', NULL),
+('slr_0003', 'Seller3', 'seller3@django.seller.com', '1234567895', '123', 'Address6', NULL),
+('slr_0004', 'Seller4', 'seller4@django.seller.com', '1234567896', '123', 'Address7', NULL);
+
+
+
+//products
+INSERT INTO webapp_product (product_id, name, price, discount, brand, size, category, product_img, available_quantity, seller_id)
+VALUES 
+    ('prod_0001', 't-shirt', 20.99, '10%', 'Django Clothing', 'm,l,xl', 'clothing', 'tshirt.jpg', 10, 'slr_0003'),
+    ('prod_0002', 'jeans', 39.99, '5%', 'Django Clothing', 'm,l,xl', 'clothing', 'jeans.jpg', 10, 'slr_0002'),
+    ('prod_0003', 'dress', 49.99, '15%', 'Django Clothing', 'm,l,xl', 'clothing', 'dress.jpg', 10, 'slr_0001'),
+    ('prod_0004', 'hoodie', 29.99, '0%', 'Django Clothing', 'm,l,xl', 'clothing', 'hoodie.jpg', 10, 'slr_0004'),
+    ('prod_0005', 'skirt', 24.99, '20%', 'Django Clothing', 'm,l,xl', 'clothing', 'skirt.jpg', 10, 'slr_0003'),
+    ('prod_0006', 'shoes', 59.99, '0%', 'Apex', '39,40,41', 'shoes', 'shoes.jpg', 10, 'slr_0002'),
+    ('prod_0007', 'belt', 19.99, '10%', 'Apex', '32,34,36', 'belts', 'belt.jpg', 10, 'slr_0001');
+
+
+
+//reviews
+
+INSERT INTO webapp_productreview (review_id,reviewer_id_id, product_id_id, star, body)
+VALUES 
+('rev_0001', 'user_0001', 'prod_0001', '4', 'Great product, highly recommended!'),
+('rev_0002', 'user_0001', 'prod_0001', '3', 'Not satisfied with the quality.'),
+('rev_0003', 'user_0001', 'prod_0002', '5', 'Exactly what I was looking for.'),
+('rev_0004', 'user_0001', 'prod_0002', '2', 'Poorly made, wouldn\'t buy again.'),
+('rev_0005', 'user_0002', 'prod_0003', '4', 'Good value for the price.'),
+('rev_0006', 'user_0002', 'prod_0003', '5', 'Great product, highly recommended!'),
+('rev_0007', 'user_0002', 'prod_0004', '3', 'Not satisfied with the quality.'),
+('rev_0008', 'user_0002', 'prod_0004', '5', 'Exactly what I was looking for.'),
+('rev_0009', 'user_0002', 'prod_0005', '4', 'Good value for the price.'),
+('rev_0010', 'user_0002', 'prod_0005', '2', 'Poorly made, wouldn\'t buy again.'),
+('rev_0011', 'user_0002', 'prod_0006', '5', 'Great product, highly recommended!'),
+('rev_0012', 'user_0001', 'prod_0006', '4', 'Good value for the price.'),
+('rev_0013', 'user_0001', 'prod_0007', '3', 'Not satisfied with the quality.'),
+('rev_0014', 'user_0001', 'prod_0007', '5', 'Exactly what I was looking for.');

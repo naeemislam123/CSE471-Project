@@ -1,0 +1,814 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+
+
+
+
+<body>
+  <div class="card col-12" style="background-color: #F0FFF0; height: 70px;">
+    <div class="card-body">
+      <h4>Kindly Login with this UID: <b>{{user_id}}</b></h4>
+    </div>
+  </div>
+    
+  <div class="row">
+      <div class= 'container py-4 px-1 h-10'>
+        <div class="row">
+
+          <div class="col-sm-5">
+            
+                <div class="card mb-4" style="border-radius: 15px;">
+                <div class="card-body text-center">
+                  <img src="/media/{{user_img}}" alt="user image"
+                  class="rounded-circle img-fluid" style="width: 150px;" 
+                  >
+                  {% if user_img != '0.img' %}
+                    <form action="/remove_profile_picture" method="post">
+                      {% csrf_token %}
+                      <div class="col">
+                        <input type="hidden" name="user_id" value={{user_id}}>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Remove Profile Picture</button>
+                      </div>
+                    </form>
+                  {% endif %}
+                  
+                  <h4 class="my-3">{{username}}</h4>
+                  <h5 class="my-3">UID: <i><b>{{user_id}}</b></i></h5>
+                  <p class="text-muted mb-1"><b>Email: </b>{{email}}</p>
+                  <p class="text-muted mb-4"><b>Address: </b>{{address}}</p>
+                  <div class="d-flex justify-content-center mb-2">
+                      <form action="/user_edit_profile">
+                        <button type="submit" class="btn btn-outline-primary me-1 flex-grow-1">Edit profile</button>
+                      </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+          
+          
+          
+          
+          {% if 'slr' not in user_id %}
+
+          <div class="col-sm-7">
+            <div class="card mb-4" style="border-radius: 15px;">
+            <div class="card-body">
+              <h5 class="card-title" >Activity</h5>
+              
+            </div>
+            <ul class="list-group list-group-flush">
+
+              <li class="list-group-item">
+              
+                <div class="d-flex pt-1"  >
+
+                  <button class="btn btn-outline-info me-1 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#purchase_history" aria-expanded="false" aria-controls="collapseExample">
+                  Purchase History
+                </button>
+                </div>
+
+                <div class="collapse" id="purchase_history">
+                  <div class="card card-body">
+                    <div class = 'container my-3' style="overflow-y: auto; max-height: 300px;">
+                      <div class="mb-3">
+                        {% if carts|length != 0 %}
+                        <table class="table">
+                          {% for cart_items in carts %}
+
+
+                          
+                              <thead>
+                                <tr align="center">
+                                  <th scope="col">Product ID</th>
+                                  <th scope="col">Product Name</th>
+                                  <th scope="col">Quantity</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                {% for items in cart_items %}
+                                
+                                {% if items.0 != 'total' %}
+                                <tr align="center">
+                                  <td>{{items.0}}</td>
+                                  <td>{{items.4|title}}</td>
+                                  <td>{{items.1}}</td>
+                                </tr>
+                                {% else %}
+                                <tr align="center">
+                                  <td colspan="3">
+                                    <form action="/invoice" method="post">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="user_id" value="{{user_id}}">
+                                      <input type="hidden" name="total" value="{{items.1}}">
+                                      <input type="hidden" name="cart_id" value="{{items.2}}">
+                                      <button type="submit" class="btn btn-outline-success btn-sm">Invoice</button>
+                                    </form>
+                                    
+                                  </td>
+                                </tr>
+                                {% endif %}
+                                  
+                                  
+                               
+                                {% endfor %}
+                                
+                                
+                              </tbody>
+                              {% endfor %}
+                            </table>   
+                            
+                            {% else %}
+                            <p>No Purchase</p>
+                            {% endif %}
+                        
+                      </div>
+                    </div>
+                  </div>
+                  
+              
+              
+              </li>
+
+
+
+
+              <li class="list-group-item">
+                <div class="d-flex pt-1">
+
+                  <button class="btn btn-outline-info me-1 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#promo_codes" aria-expanded="false" aria-controls="collapseExample">
+                  Promo Codes
+                </button>
+                </div>
+                
+                
+
+                <div class="collapse" id="promo_codes">
+                  <div class="card card-body">
+                    <div class = 'container my-3'>
+                      <div class="mb-3">
+                        
+                        
+                        <table class="table">
+                          {% if allPromo|length > 0 %}
+                          <thead>
+                            <tr align="center">
+                              <th scope="col">Promo Code</th>
+                              <th scope="col">Discount Type</th>
+                              <th scope="col">Discount</th>
+                              <th scope="col">Status</th>
+                              <th scope="col"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for promo in allPromo %}
+                            <tr align="center">
+                              <td>{{promo.0}}</td>
+                              <td>{{promo.1}}</td>
+                              <td>{{promo.2}}{% if promo.1 == "Flat" %} TK {% else %}"%"{% endif %}</td>
+                              <td>{% if promo.3 == 1 %}Active {% else %}Inactive{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                            
+                          </tbody>
+                          {% else %}
+                          No Promo Codes
+                          {% endif %}
+                        </table> 
+                              
+
+
+
+
+
+                        
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              
+            </li>
+              
+            </ul>
+          </div>
+
+        </div>
+          </div>
+        
+      </div>
+
+
+      
+       <div class="container text-center">
+        <div class="col-sm-20">
+          <div class="card mb-4" style="border-radius: 15px;">
+          <div class="card-body">
+            <h5 class="card-title" >Payment Credentials</h5>
+            
+          </div>
+          <ul class="list-group list-group-flush">
+
+            <li class="list-group-item">
+            
+              <div class="d-flex pt-1">
+
+                <button class="btn btn-outline-info me-1 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#cards" aria-expanded="false" aria-controls="collapseExample">
+                Cards
+              </button>
+              </div>
+
+              <div class="collapse" id="cards">
+                <div class="card card-body">
+                  <div class = 'container my-3'>
+                    <div class="mb-3">
+                      {% if user_cards|length != 0 %}
+                      
+                      <table class="table">
+                        
+                            <thead>
+                              <tr align="center">
+                                <th scope="col">Card Number</th>
+                                <th scope="col">Available Amount</th>
+                                <th scope="col">Times Used</th>
+                                <th scope="col" colspan="2">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+
+                              {% for card in user_cards %}
+                              
+                                <tr align="center">
+                                  <td>{{card.0}}</td>
+                                  <td>{{card.2}}</td>
+                                  <td>{{card.4}}</td>
+                                  <td>
+                                    
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCard{{card.0}}">
+                                      Delete
+                                    </button>
+
+
+                                    <form id="deleteCardForm{{card.0}}" class="needs-validation" action="/manage_card" method="post" novalidate>
+                                      {% csrf_token %}
+                                      <input type="hidden" name="task" value="delete">
+                                      <input type="hidden" name="card_number" value={{card.0}}>
+                                      <input type="hidden" name="form_name" value="deleteCardForm{{card.0}}">
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="deleteCard{{card.0}}" tabindex="-1" aria-labelledby="deleteCard{{card.0}}Label" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                          <div class="modal-content">
+                                              <div class="modal-header">
+                                                  <h1 class="modal-title fs-5" id="deleteCard{{card.0}}Label">Verify Card</h1>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                  <div class="mb-3">
+                                                      <label for="cardnumberdelete" class="form-label">Card Number</label>
+                                                      <input type="text" class="form-control" id="cardnumberdelete" name="cardnumber" value="{{card.0}}" disabled>
+                                                  </div>
+                              
+                                                  <div class="mb-3">
+                                                      <label for="pin" class="form-label">Card Pin:</label>
+                                                      <input type="password" class="form-control" id="pin" name="pin" placeholder="Your 4 Digit Pin Number" required>
+                                                      <div class="invalid-feedback">
+                                                          PIN Invalid
+                                                      </div>
+                                                  </div>
+
+                                                  <div class="mb-3">
+                                                    <label for="current_password" class="form-label">Password:</label>
+                                                    <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Your Current Password" required>
+                                                    <div class="invalid-feedback">
+                                                        Password invalid
+                                                    </div>
+                                                </div>
+                              
+                                                </div>
+                                                
+                                                  <div class="modal-footer">
+                                                      <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                                      <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <script>
+                                        (() => {
+                                            'use strict';
+                                        
+                                            // Fetch the form you want to apply custom Bootstrap validation styles to
+                                            const form = document.getElementById("deleteCardForm{{card.0}}");
+                                            console.log("deleteCardForm{{card.0}}")
+                                            // Prevent submission and apply custom validation
+                                            form.addEventListener('submit', event => {
+                                                if (!form.checkValidity()) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                }
+                                                let pinFlag = false;
+                                                let passFlag = false;
+                                        
+                                                // Custom validation for card number (15 digits)
+                                                
+                                        
+                                                // Custom validation for PIN (4 digits)
+                                                const pinInput = form.querySelector('#pin');
+                                                const pinValue = pinInput.value.trim();
+                                                if (pinValue.length !== 4 || !/^\d+$/.test(pinValue)) {
+                                                    pinInput.classList.remove('is-valid');
+                                                    pinInput.classList.add('is-invalid');
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                } else {
+                                                    pinInput.classList.remove('is-invalid');
+                                                    pinInput.classList.add('is-valid');
+                                                    pinFlag = true;
+                                                }
+                                        
+                                                // Custom validation for allocated amount
+                                                const passInput = form.querySelector('#current_password');
+                                                const passValue = passInput.value
+                                                console.log("PASS", passValue, "{{user_password}}")
+                                                if (passValue !== "{{user_password}}" ) {
+                                                    
+                                                    passInput.classList.remove('is-valid');
+                                                    passInput.classList.add('is-invalid');
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                } else {
+                                                  console.log("MILSEW")
+                                                    passInput.classList.remove('is-invalid');
+                                                    passInput.classList.add('is-valid');
+                                                    passFlag = true;
+                                                }
+                                        
+                                                // If all fields are valid, allow submission
+                                                if (pinFlag && passFlag) {
+                                                    form.classList.add('was-validated');
+                                                }
+                                            }, false);
+                                        })();
+                                    </script>
+                                    
+                                    
+                                    
+                                    </form>
+
+
+                                
+                                  </td>
+                                  <td>
+
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#editCardModal{{card.0}}">
+                                      Edit
+                                    </button>
+
+                                    <form id ="editForm{{card.0}}" class="needs-validation" action="/manage_card" method="post" novalidate>
+                                      {% csrf_token %}
+                                      <input type="hidden" name="task" value="edit">
+                                      <input type="hidden" name="card_number" value={{card.0}}>
+                                  
+                                      <!-- Modal -->
+                                      <div class="modal fade" id="editCardModal{{card.0}}" tabindex="-1" aria-labelledby="editCardModal{{card.0}}Label" aria-hidden="true">
+                                          <div class="modal-dialog modal-dialog-centered">
+                                              <div class="modal-content">
+                                                  <div class="modal-header">
+                                                      <h1 class="modal-title fs-5" id="editCardModal{{card.0}}Label">Edit Card</h1>
+                                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <div class="mb-3">
+                                                          <label for="cardnumberedit" class="form-label">Card Number</label>
+                                                          <input type="text" class="form-control" id="cardnumberedit" name="cardnumber" value="{{card.0}}" disabled>
+                                                      </div>
+                                  
+                                                      <div class="mb-3">
+                                                          <label for="oldpin" class="form-label">Card Old Pin:</label>
+                                                          <input type="password" class="form-control" id="oldpin" name="oldpin" placeholder="Your old 4 Digit Pin Number" >
+                                                          <div class="invalid-feedback">
+                                                            Need PIN for Edit
+                                                          </div>
+                                                      </div>
+                                                      
+
+                                                      <div class="mb-3">
+                                                        <label for="newpin" class="form-label">Card New Pin:</label>
+                                                        <input type="password" class="form-control" id="newpin" name="newpin" placeholder="Your new 4 Digit Pin Number" >
+                                                        <div class="invalid-feedback">
+                                                          PIN has to be 4 digits
+                                                        </div>
+                                                      </div>
+
+
+                                                      <div class="mb-3">
+                                                        <label for="confirmpin" class="form-label">Confirm Card New Pin:</label>
+                                                        <input type="password" class="form-control" id="confirmpin" name="confirmpin" placeholder="Confirm your new 4 Digit Pin Number" >
+                                                        <div class="invalid-feedback">
+                                                          PIN did not match
+                                                        </div>
+                                                      </div>
+
+                                                      <div class="mb-3">
+                                                        <label for="balance" class="form-label">Edit Balance:</label>
+                                                        <input type="text" class="form-control" id="balance" name="balance" placeholder="Current Balance: {{card.2}}"  required>
+                                                        <div class="invalid-feedback">
+                                                          Enter the current balance if there is no change
+                                                        </div>
+                                                      </div>
+                                  
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                      <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                                      <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <script>
+                                        (() => {
+                                            'use strict';
+                                    
+                                            // Fetch the form with the id "editForm"
+                                            const form = document.getElementById('editForm{{card.0}}');
+                                            console.log('editForm{{card.0}}')
+                                            console.log("PAISI")
+                                    
+                                            // Prevent submission and apply custom validation
+                                            form.addEventListener('submit', event => {
+                                                if (!form.checkValidity()) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                }
+
+                                                let pinFlag = false
+                                                let newPinFlag = false
+                                                let confirmPinFlag = false
+                                                let balanceFlag = false
+
+                                              const balanceInput = form.querySelector("#balance")
+                                              let balanceValue = balanceInput.value.trim()
+                                              balanceValue = parseFloat(balanceValue)
+                                              if (balanceValue < parseFloat(20) || isNaN(balanceValue) ){
+                                                balanceInput.classList.remove('is-valid')
+                                                balanceInput.classList.add('is-invalid')
+                                                event.preventDefault();
+                                                event.stopPropagation();
+                                              }
+                                              else{
+                                                balanceInput.classList.remove('is-invalid')
+                                                balanceInput.classList.add('is-valid')
+                                                balanceFlag = true
+                                              }
+
+                                                
+
+                                              const newPinInput = form.querySelector("#newpin")
+                                              const newPinValue = newPinInput.value.trim()
+                                              if (newPinValue.length !== 4 || !/^\d+$/.test(newPinValue)){
+                                                console.log(" :) ")
+                                              }
+                                              else{
+                                                const confirmPinInput = form.querySelector("#confirmpin")
+                                                const confirmPinValue = confirmPinInput.value.trim()
+                                                newPinInput.classList.remove('is-invalid')
+                                                newPinInput.classList.add('is-valid')
+                                                
+                                                if (confirmPinValue !== newPinValue){
+                                                  newPinInput.classList.remove('is-valid')
+                                                  newPinInput.classList.add('is-invalid')
+                                                  confirmPinInput.classList.remove('is-valid')
+                                                  confirmPinInput.classList.add('is-invalid')
+                                                  event.preventDefault();
+                                                  event.stopPropagation();
+                                                }
+                                                else{
+                                                  
+                                                  confirmPinInput.classList.add('is-valid')
+                                                  confirmPinInput.classList.remove('is-invalid')
+                                                  confirmPinFlag = true
+                                                }
+                                              }
+
+                                              const pinInput = form.querySelector("#oldpin")
+                                                const pinValue = pinInput.value.trim()
+                                                if (pinValue.length !== 4 || !/^\d+$/.test(pinValue) || (balanceFlag && confirmPinFlag)) {
+                                                  pinInput.classList.remove('is-valid');
+                                                  pinInput.classList.add('is-invalid');
+                                                  event.preventDefault();
+                                                  event.stopPropagation();
+                                              } else {
+                                                  pinInput.classList.remove('is-invalid');
+                                                  pinInput.classList.add('is-valid');
+                                                  pinFlag = true;
+                                              }
+
+                                              
+
+                                              if (balanceFlag && pinFlag){
+                                                newPinInput.classList.remove('required')
+                                                form.classList.add('was-validated')
+                                              }
+                                              else if(pinFlag && confirmPinFlag){
+                                                form.classList.add('was-validated')
+                                              }
+                                              else if(!pinFlag && !confirmPinFlag && balanceInput === parseFloat("{{card.2}}") ){
+                                                form.classList.add('was-validated')
+                                              }
+                                              else if(pinFlag && confirmPinFlag && balanceFlag){
+                                                form.classList.add('was-validated')
+                                              }
+
+                                            }, false);
+                                        })();
+                                    </script>
+                                    
+                                    
+                                      
+                                    
+                                    
+                                    </form>
+
+
+
+                                  </td>
+                                </tr>
+                            
+                              {% endfor %}
+                              
+                              
+                            </tbody>
+
+                          </table>   
+                          
+                          
+                          {% else %}
+                          <p>No Cards</p>
+
+                          {% endif %}
+                          <button type="button" class="btn btn-outline-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addCard">
+                            Add Card
+                          </button>
+
+                          <form id="addCardForm1" class="needs-validation" action="/cart" method="post" novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="task" value="addCard">
+                            <input type="hidden" name="page" value="db">
+                            <!-- Modal -->
+                            <div class="modal fade" id="addCard" tabindex="-1" aria-labelledby="addCardLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="addCardLabel">Add Card Information</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="cardnumber" class="form-label">Card Number</label>
+                                                <input type="text" class="form-control" id="cardnumber" name="cardnumber" placeholder="Your 15 Digit Card Number" required>
+                                                <div class="invalid-feedback">
+                                                    Card Number Invalid
+                                                </div>
+                                            </div>
+                        
+                                            <div class="mb-3">
+                                                <label for="cardpin" class="form-label">Card Pin:</label>
+                                                <input type="password" class="form-control" id="cardpin" name="cardpin" placeholder="Your 4 Digit Pin Number" required>
+                                                <div class="invalid-feedback">
+                                                    PIN Invalid, must be 4 digits
+                                                </div>
+                                            </div>
+                        
+                                            <div class="mb-3">
+                                                <label for="taka" class="form-label">Allocated Amount:</label>
+                                                <input type="text" class="form-control" id="taka" name="taka" placeholder="Allocated Money (TK) for Django Clothing" required>
+                                                <div class="invalid-feedback">
+                                                    Need at least 20 TK
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                              (() => {
+                                  'use strict';
+                              
+                                  // Fetch the form you want to apply custom Bootstrap validation styles to
+                                  const form = document.getElementById("addCardForm1");
+                              
+                                  // Prevent submission and apply custom validation
+                                  form.addEventListener('submit', event => {
+                                      if (!form.checkValidity()) {
+                                          event.preventDefault();
+                                          event.stopPropagation();
+                                      }
+                                      let cardFlag = false;
+                                      let pinFlag = false;
+                                      let amountFlag = false;
+                              
+                                      // Custom validation for card number (15 digits)
+                                      const cardNumberInput = form.querySelector('#cardnumber');
+                                      const cardNumberValue = cardNumberInput.value.trim();
+                                      if (cardNumberValue.length !== 15 || !/^\d+$/.test(cardNumberValue)) {
+                                          cardNumberInput.classList.remove('is-valid');
+                                          cardNumberInput.classList.add('is-invalid');
+                                          event.preventDefault();
+                                          event.stopPropagation();
+                                      } else {
+                                          cardNumberInput.classList.remove('is-invalid');
+                                          cardNumberInput.classList.add('is-valid');
+                                          cardFlag = true;
+                                      }
+                              
+                                      // Custom validation for PIN (4 digits)
+                                      const pinInput = form.querySelector('#cardpin');
+                                      const pinValue = pinInput.value.trim();
+                                      if (pinValue.length !== 4 || !/^\d+$/.test(pinValue)) {
+                                          pinInput.classList.remove('is-valid');
+                                          pinInput.classList.add('is-invalid');
+                                          event.preventDefault();
+                                          event.stopPropagation();
+                                      } else {
+                                          pinInput.classList.remove('is-invalid');
+                                          pinInput.classList.add('is-valid');
+                                          pinFlag = true;
+                                      }
+                              
+                                      // Custom validation for allocated amount
+                                      const amountInput = form.querySelector('#taka');
+                                      const amountValue = amountInput.value
+                                      console.log("TAKAK", amountValue)
+                                      if (amountValue === "" ) {
+                                          
+                                          amountInput.classList.remove('is-valid');
+                                          amountInput.classList.add('is-invalid');
+                                          event.preventDefault();
+                                          event.stopPropagation();
+                                      } else {
+                                          amountValue = parseInt(amountValue)
+                                          amountInput.classList.remove('is-invalid');
+                                          amountInput.classList.add('is-valid');
+                                          amountFlag = true;
+                                      }
+                              
+                                      // If all fields are valid, allow submission
+                                      if (cardFlag && pinFlag && amountFlag) {
+                                          form.classList.add('was-validated');
+                                      }
+                                  }, false);
+                              })();
+                          </script>
+                          
+                             
+                          </form>
+                      
+                    </div>
+                  </div>
+                </div>
+            
+            
+            </li>
+            
+          </ul>
+        </div>
+      </div>
+        </div>
+      
+    </div>
+  </div>
+        
+      {% else %}
+
+
+
+      <div class="col-sm-7">
+        <div class="card mb-4" style="border-radius: 15px;">
+
+        <ul class="list-group list-group-flush">
+
+          <li class="list-group-item">
+          
+            <div class="d-flex pt-1">
+
+              <button class="btn btn-outline-info me-1 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#viewinfo" aria-expanded="false" aria-controls="collapseExample">
+              View Info
+            </button>
+            </div>
+
+            <div class="collapse" id="viewinfo">
+              <div class="card card-body">
+                <div class = 'container my-3'>
+                  <div class="mb-3">
+                    
+                    <table class="table">
+                          <thead>
+                            <tr align="center">
+                              <th scope="col">Products Sold</th>
+                              <th scope="col">Commission(%)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            
+                              <tr align="center">
+                                <td>{{seller_info.0.0}}</td>
+                                <td>{{seller_info.0.1}}</td>
+                              </tr>
+                           
+                            
+                            
+                          </tbody>
+
+                        </table>   
+                        
+
+                    
+                  </div>
+                </div>
+              </div>
+          
+          
+          </li>
+
+
+
+
+         <li class="list-group-item">
+                <div class="d-flex pt-1">
+
+                  <button class="btn btn-outline-info me-1 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#promo_codes" aria-expanded="false" aria-controls="collapseExample">
+                  Promo Codes
+                </button>
+                </div>
+                
+                
+
+                <div class="collapse" id="promo_codes">
+                  <div class="card card-body">
+                    <div class = 'container my-3'>
+                      <div class="mb-3">
+                        
+                        
+                        <table class="table">
+                          {% if allPromo|length > 0 %}
+                          <thead>
+                            <tr align="center">
+                              <th scope="col">Promo Code</th>
+                              <th scope="col">Discount Type</th>
+                              <th scope="col">Discount</th>
+                              <th scope="col">Status</th>
+                              <th scope="col"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for promo in allPromo %}
+                            <tr align="center">
+                              <td>{{promo.0}}</td>
+                              <td>{{promo.1}}</td>
+                              <td>{{promo.2}}{% if promo.1 == "Flat" %} TK {% else %}"%"{% endif %}</td>
+                              <td>{% if promo.3 == 1 %}Active {% else %}Inactive{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                            
+                          </tbody>
+                          {% else %}
+                          No Promo Codes
+                          {% endif %}
+                        </table> 
+                              
+
+
+
+
+
+                        
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+      {% endif %}
+
+
+</div>
+  </section>
+{% endblock body %}

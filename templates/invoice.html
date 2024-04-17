@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+
+
+
+
+
+<div class="container">
+
+
+      <legend>Django Clothing</legend>
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" id="name" class="form-control" value ="{{user_name}}" disabled>
+      </div>
+      <div class="mb-3">
+        <label for="trn_id" class="form-label">Transaction ID</label>
+        <input type="text" id="trn_id" class="form-control" value ="{{trn_id}}" disabled>
+      </div>
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <label for="purchased" class="form-label">Products</label>
+        <!-- Add your button here -->
+        <form action="/invoice" method="get">
+          {% csrf_token %}
+          <input type="hidden" name="task" value="dl">
+          <input type="hidden" name="total" value="{{total}}">
+          <input type="hidden" name="user_name" value="{{user_name}}">
+          <input type="hidden" name="cart_id" value="{{cart_id}}">
+          <input type="hidden" name="trn_id" value="{{trn_id}}">
+          <input type="hidden" name="promo_code" value="{{promo_code}}">
+          <input type="hidden" name="promo_discount" value="{{promo_discount}}">
+          <input type="hidden" name="promo_price" value="{{promo_price}}">
+          <input type="hidden" name="task" value="dl">
+          <button id="downloadBtn" class="btn btn-primary ms-auto">Download</button>
+        </form>
+      </div>
+
+
+</div>
+
+
+<div class="container text-center">
+    <table class="table">
+        <thead>
+            <tr align="center">
+              <th scope="col">Product ID</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Size</th>
+              <th scope="col">Unit Price</th>
+              <th scope="col">Sub Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for items in cart_items %}
+            <tr align="center">
+                <td>{{items.0}}</td>
+                <td>{{items.4|title}}</td>
+                <td>{{items.1}}</td>
+                <td>{{items.2}}</td>
+                <td>{{ items.5 }}</td>
+                <td>{{items.3}}</td>
+              </tr>
+              {% endfor %}
+              <tr align="center">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>Total</th>
+                <td>{{total}}</td>
+              </tr>
+              <tr align="center">
+                
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>Promo Code</th>
+                <td>{% if promo_code != None %}{{promo_code}}{% else %}None{% endif %}</td>
+              </tr>
+              {% if promo_code != None %}
+              <tr align="center">
+                
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>Promo Discount</th>
+                <td>{{promo_discount}}</td>
+              </tr>
+              <tr align="center">
+                
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <th>Discount Price</th>
+                <td>{{promo_price}}</td>
+              </tr>
+              {% endif %}
+
+              
+          </tbody>
+    </table>
+    
+    
+   
+
+    
+  </div>
+
+
+{% endblock body %}
+
+
+
+

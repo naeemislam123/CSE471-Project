@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% if cart|length > 0 %}
+<div class="alert alert-info justify-content-between align-items-center">
+  <h5><b>Your Cart</b></h5>
+  <p>Total Price: {{ total }} TK</p>
+  <div class="d-flex justify-content-between align-items-center">
+    <!-- Checkout Form -->
+
+
+        <!-- Button trigger modal -->
+      <button type="button" class="btn btn-outline-success btn-lg me-2" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+        Checkout
+      </button>
+
+
+      {% if user_cards|length > 0 %}
+      
+      
+        <form class="needs-validation" action="/cart" method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="cart_id" value="{{ cart_id }}">
+          <input type="hidden" name="task" value="checkout">
+      
+          <!-- Modal -->
+          <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="checkoutModalLabel">Provide Payment Information</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="mb-3">
+                              <label for="cardnumber" class="form-label">Card Number</label>
+                              <select class="form-select form-select-sm" aria-label="cardnumber" name="cardnumber" id="cardnumber">
+                                {% for card_number in card_list %}
+                                    {% if card_number.0 == card_list.0.0 %}
+                                        <option value={{ card_number.0 }} selected style="font-size: larger;">{{ card_number.0|title }}</option>
+                                        
+                                    {% else %}
+
+                                        <option value={{ card_number.0 }} style="font-size: larger;">{{ card_number.0|title }}</option>
+                                        
+                                    {% endif %}
+                                    {% if card_number.1 < total %}
+                                      <optgroup label="Balance">
+                                        <option disabled style="color: red;">{{ card_number.1 }}</option>
+                                      </optgroup>
+                                    {% else %}
+                                      <optgroup label="Balance">
+                                        <option disabled style="color: green;">{{ card_number.1 }}</option>
+                                      </optgroup>
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                              </select>
+                          </div>
+      
+                          <div class="mb-3">
+                              <label for="pin" class="form-label">Card Pin:</label>
+                              <input type="password" class="form-control" id="pin" name="pin" placeholder="Your 4 Digit Pin Number" required>
+                              <div class="invalid-feedback">
+                                  PIN Invalid
+                              </div>
+                          </div>
+      
+                          <div class="mb-3">
+                              <label for="current_password" class="form-label">Django Clothing Password:</label>
+                              <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Current Account Password" required>
+                              <div class="invalid-feedback">
+                                  Password Incorrect
+                              </div>
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="promo" class="form-label">PROMO CODE:</label>
+                            <input type="text" class="form-control" id="promo" name="promo" placeholder="Enter PROMO CODES">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                          <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <script>
+            (() => {
+                'use strict';
+        
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                const forms = document.querySelectorAll('.needs-validation');
+        
+                // Loop over them and prevent submission
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        var pinFlag = false
+                        var passFlag = false
+                        // Custom validation for card number (15 digits)
+                    
+        
+                        // Custom validation for PIN (4 digits)
+                        const pinInput = form.querySelector('#pin');
+                        const pinValue = pinInput.value.trim();
+                        if (pinValue.length !== 4 || !/^\d+$/.test(pinValue)) {
+                          pinInput.classList.remove('is-valid')
+                            pinInput.classList.add('is-invalid');
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            pinInput.classList.remove('is-invalid'); // Remove is-invalid class
+                            pinInput.classList.add('is-valid'); // Add is-valid class for valid input
+                            pinFlag = true
+                        }
+
+                        const passInput = form.querySelector('#current_password');
+                        const passValue = passInput.value.trim();
+                        console.log(passInput)
+                        console.log({{user_password}})
+                        if (passValue != {{user_password}}) {
+                            passInput.classList.remove('is-valid')
+                            passInput.classList.add('is-invalid');
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            passInput.classList.remove('is-invalid'); // Remove is-invalid class
+                            passInput.classList.add('is-valid'); // Add is-valid class for valid input
+                            passFlag = true
+                        }
+                        
+                        if (cardFlag && pinFlag && passFlag){
+                          form.classList.add('was-validated');
+                        }
+                        
+                    }, false);
+                });
+            })();
+        </script>
+        
+        
+        </form>
+
+      {% else %}
+
+        <form class="needs-validation" action="/cart" method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="task" value="addCard">
+          <input type="hidden" name="page" value="cart">
+      
+          <!-- Modal -->
+          <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="checkoutModalLabel">Add Card to Checkout</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="mb-3">
+                              <label for="cardnumber" class="form-label">Card Number</label>
+                              <input type="text" class="form-control" id="cardnumber" name="cardnumber" placeholder="Your 15 Digit Card Number" required>
+                              <div class="invalid-feedback">
+                                  Card Number Invalid
+                              </div>
+                          </div>
+      
+                          <div class="mb-3">
+                              <label for="cardpin" class="form-label">Card Pin:</label>
+                              <input type="password" class="form-control" id="cardpin" name="cardpin" placeholder="Your 4 Digit Pin Number" required>
+                              <div class="invalid-feedback">
+                                  PIN Invalid
+                              </div>
+                          </div>
+      
+                          <div class="mb-3">
+                              <label for="taka" class="form-label">Allocated Amount:</label>
+                              <input type="number" class="form-control" id="taka" name="taka" placeholder="Allocated Money (TK) for Django Clothing" required>
+                              <div class="invalid-feedback">
+                                  Need at least 20 TK
+                              </div>
+                          </div>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                          <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <script>
+            (() => {
+                'use strict';
+        
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                const forms = document.querySelectorAll('.needs-validation');
+        
+                // Loop over them and prevent submission
+                Array.from(forms).forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        var cardFlag = false
+                        var pinFlag = false
+                        var amountFlag = false
+                        // Custom validation for card number (15 digits)
+                        const cardNumberInput = form.querySelector('#cardnumber');
+                        const cardNumberValue = cardNumberInput.value.trim();
+                        if (cardNumberValue.length !== 15 || !/^\d+$/.test(cardNumberValue)) {
+                            cardNumberInput.classList.remove('is-valid');
+                            cardNumberInput.classList.add('is-invalid');
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            cardNumberInput.classList.remove('is-invalid'); // Remove is-invalid class
+                            cardNumberInput.classList.add('is-valid'); // Add is-valid class for valid input
+                            cardFlag = true
+                        }
+        
+                        // Custom validation for PIN (4 digits)
+                        const pinInput = form.querySelector('#cardpin');
+                        const pinValue = pinInput.value.trim();
+                        if (pinValue.length !== 4 || !/^\d+$/.test(pinValue)) {
+                          pinInput.classList.remove('is-valid')
+                            pinInput.classList.add('is-invalid');
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            pinInput.classList.remove('is-invalid'); // Remove is-invalid class
+                            pinInput.classList.add('is-valid'); // Add is-valid class for valid input
+                            pinFlag = true
+                        }
+
+                        const amountInput = form.querySelector('#taka');
+                        const amountValue = amountInput.value.trim();
+                        console.log(amountInput)
+                        console.log({{user_amountword}})
+                        if (amountValue < 20 ) {
+                            amountInput.classList.remove('is-valid')
+                            amountInput.classList.add('is-invalid');
+                            event.preventDefault();
+                            event.stopPropagation();
+                        } else {
+                            amountInput.classList.remove('is-invalid'); // Remove is-invalid class
+                            amountInput.classList.add('is-valid'); // Add is-valid class for valid input
+                            amountFlag = true
+                        }
+                        
+                        if (cardFlag && pinFlag && passFlag){
+                          form.classList.add('was-validated');
+                        }
+                        
+                    }, false);
+                });
+            })();
+        </script>
+        
+        
+        </form>
+      
+      {% endif %}
+    
+    <!-- Delete Form -->
+    <form action="/cart" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="task" value="delete">
+      <input type="hidden" name="cart_id" value="{{ cart_id }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+    </form>
+  </div>
+</div>
+
+
+{% for cart_item in cart %}
+
+<div class="col">
+  
+
+    <div class="card h-100" style="background-color: {% if dark == 1 %}#E3A4B3{% else %} #FFD1DC {% endif %}">
+      <div class="card-body p-3">
+        <img src="/media/{{cart_item.13}}" alt="product_image" class="img-fluid mb-3" style="border-radius: 10px;">
+        <h5 class="mb-1">{{cart_item.7|title}}</h5> 
+        <h6 class="card-subtitle mb-2 text-body-secondary">Quantity: {{cart_item.1}}</h6>
+        <div class="d-flex justify-content-start mb-3" style="background-color: {% if dark == 0 %}#E3A4B3{% else %} #FFD1DC {% endif %}; border-radius: 10px; padding: 10px;">
+          <div class="px-2">
+            <p class="small text-muted mb-0">Price(TK)</p>
+            <p class="mb-0">{{ cart_item.2 }}</p>
+          </div>
+          <div class="px-2">
+            <p class="small text-muted mb-0">Brand</p>
+            <p class="mb-0" style="font-size: small;">{{cart_item.10|title}}</p>
+          </div>
+          <div class="px-2">
+            <p class="small text-muted mb-0">Size</p>
+            <p class="mb-0">{{ cart_item.3|title }}</p>
+          </div>
+          <div class="px-2">
+            <p class="small text-muted mb-0">Rating</p>
+            <p class="mb-0" style="font-size: small;">{{cart_item.17}}</p>
+          </div>
+        </div>
+        <div class="d-grid">
+          <form action="/cart" method="post">
+            {% csrf_token %}
+            <input type="hidden" name = 'task' value="remove">
+            <input type="hidden" name = 'cart_item_id' value={{cart_item.0}}>
+            <input type="hidden" name="cart_id" value="{{ cart_id }}">
+            <input type="hidden" name="sub_total" value={{cart_item.2}}>
+            <div class="input-group mb-3">
+              <button type="submit" class="btn btn-outline-danger">Remove</button>
+            </div>
+          </form>
+          <div class="d-grid">
+            <form action="/product_review" method="get">
+              {% csrf_token %}
+              <input type="hidden" name = 'product_id' value={{cart_item.4}}>
+              <button type="submit" class="btn btn-outline-secondary">Product Reviews</button>
+            </form>
+          </div>
+      </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+{% else %}
+<div class="alert alert-info">
+  No item in cart
+</div>
+{% endif %}
+
+
+
+{% endblock %}
